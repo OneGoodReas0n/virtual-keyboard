@@ -1,0 +1,30 @@
+{
+  "name": "virtual-keyboard",
+  "version": "1.0.0",
+  "description": "Virtual keyboard for personal usage",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"There are no test\" ",
+    "start": "webpack ---watch",
+    "build": "webpack --config webpack.config.js"
+  },
+  "repository": "git+https://github.com/onegoodreas0n/virtual-keyboard.git",
+  "author": "reas0n",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/onegoodreas0n/virtual-keyboard/issues"
+  },
+  "homepage": "https://github.com/onegoodreas0n/virtual-keyboard#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/core": "^7.6.4",
+    "@babel/preset-env": "^7.6.3",
+    "babel-loader": "^8.0.6",
+    "css-loader": "^3.2.0",
+    "mini-css-extract-plugin": "^0.8.0",
+    "sass": "^1.23.3",
+    "sass-loader": "^8.0.0",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10"
+  }
+}
