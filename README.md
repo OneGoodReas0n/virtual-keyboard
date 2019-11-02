@@ -1,9 +1,9 @@
-# Canvas Task
+# Virtual Keyboard Task
 
 ## To run this programm
 
-- install npm
+-   install npm
 
-- run command 'npm run build'
+-   run command 'npm run build'
 
-- open index.html
+-   open index.html
