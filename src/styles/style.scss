@@ -1,15 +1,70 @@
 html,
 body {
-  margin: 0;
-  padding: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.text {
+    font-family: 'Noto Sans Jp', sans-serif;
+    font-size: 18px;
+    line-height: 15px;
+    color: #ffffff;
 }
 
 .container {
-  width: 90%;
-  margin: 50px auto 0 auto;
-  text-align: center;
-  .container__textarea {
-    width: 40%;
-    height: 250px;
-  }
+    width: 80%;
+    margin: 50px auto 0 auto;
+    text-align: center;
+    .container__textarea {
+        width: 40%;
+        height: 250px;
+    }
+
+    .keyboard {
+        margin-top: 50px;
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            .btn-key {
+                width: 50px;
+                height: 50px;
+                border-radius: 5px;
+                background-color: #363636;
+            }
+
+            .btn-key-letter {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .btn-key-double-symbol {
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                .symbol-upper {
+                    position: absolute;
+                    top: 5px;
+                    left: 5px;
+                }
+            }
+
+            .btn-key-word {
+                display: flex;
+                align-items: center;
+                width: fit-content;
+                padding: 0 10px;
+            }
+
+            .btn-key-word-with-space {
+                display: flex;
+                align-items: center;
+                width: fit-content;
+                padding: 0 20px;
+            }
+        }
+    }
 }
