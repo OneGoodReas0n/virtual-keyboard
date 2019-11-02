@@ -1,5 +1,6 @@
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const sass  = require('sass')
 
 module.exports = {
     entry: './scripts/index.js',
@@ -14,24 +15,29 @@ module.exports = {
             {
                 test: /\.js$/,
                 exclude: /(node_modules)/,
-                use: [{
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['@babel/preset-env']
-                    }
-                },
+                use: [
+                    {
+                        loader: 'eslint-loader',
+                        options: {
+                            presets: ['airbnb-base']
+                        }
+                    },
 
-                {
-                    loader: 'eslint-loader',
-                    options: {
-                        presets: ['airbnb']
-                    }
-                }
+                    {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: ['@babel/preset-env']
+                        }
+                    },
                 ]
             },
             {
                 test: /\.(sa|sc|c)ss$/,
                 use: [
+                    {
+                        loader: MiniCssExtractPlugin.loader
+                    },
+
                     {
                         loader: 'css-loader',
                     },
@@ -39,7 +45,7 @@ module.exports = {
                     {
                         loader: 'sass-loader',
                         options: {
-                            implementation: require('sass')
+                            implementation: sass
                         }
                     }
                 ]
@@ -52,8 +58,8 @@ module.exports = {
 
     plugins: [
         new MiniCssExtractPlugin({
-            filename: 'style.css'
-        })
+            filename: 'style.css',
+        }),
     ],
 
     mode: 'development'
