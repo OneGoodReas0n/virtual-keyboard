@@ -9,5 +9,10 @@
     "env": {
         "es6": true,
         "browser": true
+    },
+
+    "rules": {
+        "no-nested-ternary": "off",
+        "no-unused-vars": "warn"
     }
 }
