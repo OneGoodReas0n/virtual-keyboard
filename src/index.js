@@ -1,8 +1,7 @@
 /* eslint-disable no-nested-ternary */
-import { englishKeyboard } from "./data"
+import { englishKeyboard } from './keyboard/keyboard-data'
 
 console.log(englishKeyboard)
-
 
 const { body } = document
 
@@ -17,7 +16,6 @@ containerDiv.appendChild(textarea)
 const keyboardDiv = document.createElement('div')
 keyboardDiv.classList.add('keyboard')
 
-
 const rowDiv = document.createElement('div')
 rowDiv.classList.add('row')
 
@@ -27,7 +25,7 @@ btnDiv.classList.add('btn-key-letter')
 
 const spanElem = document.createElement('span')
 spanElem.classList.add('text')
-spanElem.innerHTML = "$"
+spanElem.innerHTML = '$'
 
 btnDiv.appendChild(spanElem)
 
