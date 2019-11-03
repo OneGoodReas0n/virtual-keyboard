@@ -1,13 +1,13 @@
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const sass  = require('sass')
+const sass = require('sass')
 
 module.exports = {
-    entry: './scripts/index.js',
+    entry: './src/index.js',
 
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'build.js'
+        filename: 'build.js',
     },
 
     module: {
@@ -17,25 +17,25 @@ module.exports = {
                 exclude: /(node_modules)/,
                 use: [
                     {
-                        loader: 'eslint-loader',
+                        loader: 'babel-loader',
                         options: {
-                            presets: ['airbnb-base']
-                        }
+                            presets: ['@babel/preset-env'],
+                        },
                     },
 
                     {
-                        loader: 'babel-loader',
+                        loader: 'eslint-loader',
                         options: {
-                            presets: ['@babel/preset-env']
-                        }
+                            presets: ['airbnb-base'],
+                        },
                     },
-                ]
+                ],
             },
             {
                 test: /\.(sa|sc|c)ss$/,
                 use: [
                     {
-                        loader: MiniCssExtractPlugin.loader
+                        loader: MiniCssExtractPlugin.loader,
                     },
 
                     {
@@ -45,15 +45,12 @@ module.exports = {
                     {
                         loader: 'sass-loader',
                         options: {
-                            implementation: sass
-                        }
-                    }
-                ]
-            }
-
+                            implementation: sass,
+                        },
+                    },
+                ],
+            },
         ],
-
-
     },
 
     plugins: [
@@ -62,5 +59,5 @@ module.exports = {
         }),
     ],
 
-    mode: 'development'
+    mode: 'development',
 }
