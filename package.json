@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"There are no test\" ",
-    "start": "webpack ---watch --config webpack.config.js && npm run lint",
-    "build": "webpack --config webpack.config.js",
-    "lint": "eslint --fix ./src"
+    "start": "webpack --watch ",
+    "build": "webpack",
+    "lint": "eslint ./src",
+    "lint:fix": "eslint --fix ./src"
   },
   "repository": "git+https://github.com/onegoodreas0n/virtual-keyboard.git",
   "author": "reas0n",
