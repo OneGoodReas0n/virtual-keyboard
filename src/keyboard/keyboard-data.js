@@ -6,8 +6,8 @@ const enPattern =
     `A S D F G H J K L ;|: '|"\nZ X C V B N M ,|< .|> /|?`;
 
 const specialPattern =
-    `Backspace,Tab, Del,Caps Lock,Enter, Shift, ArrowUp, Shift, Ctrl,` +
-    `Win, Alt,Space, Alt, Ctrl, ArrowLeft, ArrowDown, ArrowRight`;
+    `Backspace,Tab, Delete,CapsLock,Enter, ShiftLeft, ArrowUp, ShiftRight, ControlLeft,` +
+    `MetaLeft, AltLeft,Space, AltRight, ControlRight, ArrowLeft, ArrowDown, ArrowRight`;
 
 const getArrFromStr = str => {
     return str.split(',');
@@ -94,7 +94,7 @@ const makeDefKeybrdBtns = (enKeyboardValues, ruKeyboardValues) => {
                 },
             };
             if (typeof enSymbolObj === 'string') {
-                keyboardBtn.key = `Key${enSymbolObj}`;
+                keyboardBtn.key = `Key${String(enSymbolObj).toUpperCase()}`;
                 keyboardBtn.langVal.ru.initVal = ruSymbolObj;
                 keyboardBtn.langVal.ru.additVal = String(ruSymbolObj).toUpperCase();
                 keyboardBtn.langVal.ru.type = typeof ruSymbolObj === 'string' ? 'Single' : 'Multiply';
@@ -106,11 +106,14 @@ const makeDefKeybrdBtns = (enKeyboardValues, ruKeyboardValues) => {
                 const [enVal, enAddVal] = enSymbolObj;
                 if (!Number.isNaN(parseInt(enVal, 10))) {
                     keyboardBtn.key = `Digit${enVal}`;
+                    keyboardBtn.langVal.ru.additVal = ruAddVal;
+                } else if (ruAddVal === undefined) {
+                    keyboardBtn.langVal.ru.additVal = ruVal.toUpperCase();
                 } else {
                     keyboardBtn.key = defineSpecElem(enVal);
+                    keyboardBtn.langVal.ru.additVal = ruAddVal;
                 }
                 keyboardBtn.langVal.ru.initVal = ruVal;
-                keyboardBtn.langVal.ru.additVal = ruAddVal;
                 keyboardBtn.langVal.ru.type = typeof ruSymbolObj === 'string' ? 'Single' : 'Multiply';
                 keyboardBtn.langVal.en.initVal = enVal;
                 keyboardBtn.langVal.en.additVal = enAddVal;
@@ -128,24 +131,40 @@ const addAdditionalKeys = (arr, keysArr) => {
     const specialKeyObjs = [];
     for (let i = 0; i < keysArr.length; i += 1) {
         if (keysArr[i].includes('Arrow')) {
-            switch (keysArr[i].trim()) {
+            const key = keysArr[i].trim();
+            switch (key) {
                 case 'ArrowUp':
-                    specialKeyObjs.push({ key: keysArr[i], val: '&#8593', type: 'Special-letter' });
+                    specialKeyObjs.push({ key, val: '&#8593', type: 'Special-letter' });
                     break;
                 case 'ArrowDown':
-                    specialKeyObjs.push({ key: keysArr[i], val: '&#8595', type: 'Special-letter' });
+                    specialKeyObjs.push({ key, val: '&#8595', type: 'Special-letter' });
                     break;
                 case 'ArrowLeft':
-                    specialKeyObjs.push({ key: keysArr[i], val: '&#8592', type: 'Special-letter' });
+                    specialKeyObjs.push({ key, val: '&#8592', type: 'Special-letter' });
                     break;
                 case 'ArrowRight':
-                    specialKeyObjs.push({ key: keysArr[i], val: '&#8594', type: 'Special-letter' });
+                    specialKeyObjs.push({ key, val: '&#8594', type: 'Special-letter' });
                     break;
                 default:
                     break;
             }
         } else if (keysArr[i] === 'Space') {
             specialKeyObjs.push({ key: keysArr[i].trim(), val: ' ', type: 'Special-big' });
+        } else if (
+            keysArr[i].includes('Shift') ||
+            keysArr[i].includes('Alt') ||
+            keysArr[i].includes('Control') ||
+            keysArr[i].includes('Meta')
+        ) {
+            let val = keysArr[i].trim();
+            val = val.includes('Shift')
+                ? 'Shift'
+                : val.includes('Alt')
+                ? 'Alt'
+                : val.includes('Control')
+                ? 'Ctrl'
+                : 'Win';
+            specialKeyObjs.push({ key: keysArr[i].trim(), val, type: 'Special' });
         } else {
             specialKeyObjs.push({ key: keysArr[i].trim(), val: keysArr[i].trim(), type: 'Special' });
         }
@@ -169,17 +188,17 @@ const addAdditionalKeys = (arr, keysArr) => {
 
 const keyboardObjs = addAdditionalKeys(makeDefKeybrdBtns(enKeybrdArr, ruKeybrdArr), getArrFromStr(specialPattern));
 
-const renderKeyboard = (keybrdValues, lang) => {
+const renderKeyboard = (lang, shift) => {
     const keyboardDiv = document.createElement('div');
     keyboardDiv.classList.add('keyboard');
 
-    for (let i = 0; i < keybrdValues.length; i += 1) {
+    for (let i = 0; i < keyboardObjs.length; i += 1) {
         const rowDiv = document.createElement('div');
         rowDiv.classList.add('row');
         let btnDiv = {};
 
-        for (let j = 0; j < keybrdValues[i].length; j += 1) {
-            const symbolObj = keybrdValues[i][j];
+        for (let j = 0; j < keyboardObjs[i].length; j += 1) {
+            const symbolObj = keyboardObjs[i][j];
 
             btnDiv = document.createElement('div');
             btnDiv.classList.add('btn-key');
@@ -193,40 +212,51 @@ const renderKeyboard = (keybrdValues, lang) => {
             spanElem2.classList.add('symbol-upper');
 
             let type = '';
-            if (keybrdValues[i][j].type !== undefined) {
-                type = keybrdValues[i][j].type;
+            if (symbolObj.type !== undefined) {
+                type = symbolObj.type;
             } else if (lang === 'en') {
-                type = keybrdValues[i][j].langVal.en.type;
+                type = symbolObj.langVal.en.type;
             } else if (lang === 'ru') {
-                type = keybrdValues[i][j].langVal.ru.type;
+                type = symbolObj.langVal.ru.type;
             }
             switch (type) {
                 case 'Special-big':
                     btnDiv.classList.add('btn-key-big');
+                    btnDiv.id = symbolObj.key;
                     spanElem1.innerHTML = symbolObj.val;
                     btnDiv.appendChild(spanElem1);
                     break;
                 case 'Special-letter':
                     btnDiv.classList.add('btn-key-letter');
+                    btnDiv.id = symbolObj.key;
                     spanElem1.innerHTML = symbolObj.val;
                     btnDiv.appendChild(spanElem1);
                     break;
                 case 'Special':
                     btnDiv.classList.add('btn-key-word-with-space');
+                    btnDiv.id = symbolObj.key;
                     spanElem1.innerHTML = symbolObj.val;
                     btnDiv.appendChild(spanElem1);
                     break;
                 case 'Single':
                     btnDiv.classList.add('btn-key-letter');
-                    spanElem1.innerHTML = symbolObj.langVal[lang].initVal;
+                    btnDiv.id = symbolObj.key;
+                    spanElem1.innerHTML = shift ? symbolObj.langVal[lang].additVal : symbolObj.langVal[lang].initVal;
                     btnDiv.appendChild(spanElem1);
                     break;
                 case 'Multiply':
                     btnDiv.classList.add('btn-key-double-symbol');
-                    spanElem1.innerHTML = symbolObj.langVal[lang].initVal;
-                    spanElem2.innerHTML = symbolObj.langVal[lang].additVal;
-                    btnDiv.appendChild(spanElem1);
-                    btnDiv.appendChild(spanElem2);
+                    btnDiv.id = symbolObj.key;
+                    if (shift) {
+                        spanElem1.innerHTML = symbolObj.langVal[lang].additVal;
+                        btnDiv.appendChild(spanElem1);
+                    } else {
+                        spanElem1.innerHTML = symbolObj.langVal[lang].initVal;
+                        spanElem2.innerHTML = symbolObj.langVal[lang].additVal;
+                        btnDiv.appendChild(spanElem1);
+                        btnDiv.appendChild(spanElem2);
+                    }
+
                     break;
                 default:
                     break;
@@ -238,6 +268,4 @@ const renderKeyboard = (keybrdValues, lang) => {
     return keyboardDiv;
 };
 
-const keyboardDiv = renderKeyboard(keyboardObjs, 'en');
-
-export default keyboardDiv;
+export { renderKeyboard };
