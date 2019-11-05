@@ -7,7 +7,25 @@ const enPattern =
 
 const specialPattern =
     `Backspace,Tab, Delete,CapsLock,Enter, ShiftLeft, ArrowUp, ShiftRight, ControlLeft,` +
-    `MetaLeft, AltLeft,Space, AltRight, ControlRight, ArrowLeft, ArrowDown, ArrowRight`;
+    `MetaLeft, AltLeft,Space, AltRight, ArrowLeft, ArrowDown, ArrowRight, ControlRight`;
+
+const specialKeys = [
+    /*
+      Array of Special symbols (Backquoute,Minus, Equal, LeftBracket,RightBracket,
+      Semicolon,Quote,Comma,Period,Slash) 
+    */
+    'Backquote',
+    'Minus',
+    'Equal',
+    'Backslash',
+    'Semicolon',
+    'Quote',
+    'Comma',
+    'Period',
+    'Slash',
+    'BracketLeft',
+    'BracketRight',
+];
 
 const getArrFromStr = str => {
     return str.split(',');
@@ -45,27 +63,27 @@ const enKeybrdArr = getKeyboardArrFromStr(enPattern);
 const defineSpecElem = str => {
     switch (str) {
         case '`':
-            return 'Backquote';
+            return specialKeys[0];
         case '-':
-            return 'Minus';
+            return specialKeys[1];
         case '=':
-            return 'Equal';
+            return specialKeys[2];
         case '\\':
-            return 'Backslash';
+            return specialKeys[3];
         case ';':
-            return 'Semicolon';
+            return specialKeys[4];
         case "'":
-            return 'Quote';
+            return specialKeys[5];
         case ',':
-            return 'Comma';
+            return specialKeys[6];
         case '.':
-            return 'Period';
+            return specialKeys[7];
         case '/':
-            return 'Slash';
+            return specialKeys[8];
         case '[':
-            return 'BracketLeft';
+            return specialKeys[9];
         case ']':
-            return 'BracketRight';
+            return specialKeys[10];
         default:
             return '';
     }
@@ -108,6 +126,7 @@ const makeDefKeybrdBtns = (enKeyboardValues, ruKeyboardValues) => {
                     keyboardBtn.key = `Digit${enVal}`;
                     keyboardBtn.langVal.ru.additVal = ruAddVal;
                 } else if (ruAddVal === undefined) {
+                    keyboardBtn.key = defineSpecElem(enVal);
                     keyboardBtn.langVal.ru.additVal = ruVal.toUpperCase();
                 } else {
                     keyboardBtn.key = defineSpecElem(enVal);
@@ -124,6 +143,16 @@ const makeDefKeybrdBtns = (enKeyboardValues, ruKeyboardValues) => {
         keyboardButtonsArr.push(line);
     }
     return keyboardButtonsArr;
+};
+
+const getType = (obj, lang) => {
+    if (lang === 'en' && obj.type === undefined) {
+        return obj.langVal.en.type;
+    }
+    if (lang === 'ru' && obj.type === undefined) {
+        return obj.langVal.ru.type;
+    }
+    return obj.type;
 };
 
 const addAdditionalKeys = (arr, keysArr) => {
@@ -211,15 +240,7 @@ const renderKeyboard = (lang, shift) => {
             spanElem2.classList.add('text_smaller');
             spanElem2.classList.add('symbol-upper');
 
-            let type = '';
-            if (symbolObj.type !== undefined) {
-                type = symbolObj.type;
-            } else if (lang === 'en') {
-                type = symbolObj.langVal.en.type;
-            } else if (lang === 'ru') {
-                type = symbolObj.langVal.ru.type;
-            }
-            switch (type) {
+            switch (getType(symbolObj, lang)) {
                 case 'Special-big':
                     btnDiv.classList.add('btn-key-big');
                     btnDiv.id = symbolObj.key;
@@ -268,4 +289,4 @@ const renderKeyboard = (lang, shift) => {
     return keyboardDiv;
 };
 
-export { renderKeyboard };
+export default { renderKeyboard };
