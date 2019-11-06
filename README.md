@@ -1,4 +1,4 @@
-# Canvas Task
+# Virtual-keyboard Task
 
 ## To run this programm
 
@@ -9,3 +9,5 @@
 - open index.html
 
 - to switch the language with real keyboard click _Alt_ + _Ctrl_
+
+### Readme for gh-pages
