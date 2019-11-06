@@ -18,16 +18,23 @@ body {
 .container {
     width: 70%;
     height: 100%;
-    margin: 50px auto 0 auto;
+    margin: 20px auto 0 auto;
     text-align: center;
-    .container__textarea {
-        width: 40%;
-        height: 250px;
+
+    .textarea-wrapper {
+        padding: 20px;
+        background-color: #181818;
+        border-radius: 5px;
+        .textarea-wrapper__textarea {
+            width: 98%;
+            height: 300px;
+            font-family: 'Nunito';
+            font-size: 20px;
+        }
     }
 
     .keyboard {
         padding: 30px;
-        margin-top: 60px;
         background-color: #363636;
         border-radius: 6px;
 
@@ -35,6 +42,10 @@ body {
             display: flex;
             justify-content: space-between;
             margin-top: 15px;
+
+            &:first-child {
+                margin-top: 0;
+            }
             .btn-key {
                 width: 50px;
                 height: 50px;
@@ -83,6 +94,10 @@ body {
                 align-items: center;
                 width: fit-content;
                 padding: 0 25px;
+            }
+
+            .btn-key-word-with-space_right-shift {
+                padding: 0 42px;
             }
         }
     }
