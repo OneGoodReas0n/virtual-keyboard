@@ -1,6 +1,6 @@
 # Virtual Keyboard Task
 
-## To run this programm
+## To run this program
 
 -   install npm
 
@@ -8,8 +8,4 @@
 
 -   open index.html
 
--   for changing language from real keyboard click Alt + Ctrl together
-
--   open index.html
-
--   to switch the language with real keyboard click _Alt_ + _Ctrl_
+-   for changing language from real keyboard click Shift + Alt at the same time

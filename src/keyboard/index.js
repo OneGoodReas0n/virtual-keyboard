@@ -1,5 +1,8 @@
 class Keyboard {
     constructor() {
+        this.textAreaEnd = 0;
+        this.isFocused = false;
+
         this.keyModificator = {
             ctrl: false,
             alt: false,
@@ -403,11 +406,35 @@ class Keyboard {
             }
         };
 
+        this.setSelectionRange = (input, selectionStart, selectionEnd) => {
+            if (input.setSelectionRange) {
+                input.focus();
+                input.setSelectionRange(selectionStart, selectionEnd);
+            } else if (input.createTextRange) {
+                const range = input.createTextRange();
+                range.collapse(true);
+                range.moveEnd('character', selectionEnd);
+                range.moveStart('character', selectionStart);
+                range.select();
+            }
+        };
+
+        this.setCaretToPos = (input, pos) => {
+            this.setSelectionRange(input, pos, pos);
+        };
+
         this.keyDownHandler = (e, containerDiv) => {
             const textarea = document.getElementById('textarea');
-            let name = e.id;
+            // textarea.addEventListener('onfocusout', area => {
+            //     this.textAreaCursor = area.selectionEnd;
+            // });
+            let name = e.code;
             let virtual = true;
-            textarea.focus();
+            if (!this.isFocused) {
+                console.log('Focus');
+                textarea.focus();
+                this.isFocused = true;
+            }
 
             if (e.code !== undefined) {
                 name = e.code;
@@ -420,58 +447,90 @@ class Keyboard {
                     this.specialKeys.includes(name) ||
                     String(name).includes('Tab')
                 ) {
+                    // if (name.includes('Tab')) {
+                    //     e.preventDefault();
+                    //     textarea.value = `${textarea.value.slice(0, this.textAreaCursor)}\t${textarea.value.slice(
+                    //         this.textAreaCursor
+                    //     )}`;
+                    // }
                     if (!virtual) {
                         e.preventDefault();
+                        console.log('Symbol ~!Virtual');
+                        this.setCaretToPos(textarea, textarea.selectionStart);
+                        textarea.append(document.getElementById(name).children.item(0).innerHTML);
                     }
-                    if (name.includes('Tab')) {
-                        textarea.value += '\t';
-                    } else {
-                        textarea.value += document.getElementById(name).children.item(0).innerHTML;
-                    }
-                } else if (name.includes('Shift') && !virtual) {
-                    while (containerDiv.children.length > 1) {
-                        containerDiv.removeChild(containerDiv.lastChild);
-                    }
-                    containerDiv.appendChild(this.renderKeyboard(localStorage.getItem('lang'), true));
-                    this.addVirtualHandler(containerDiv);
-                } else if (name.includes('Shift') && virtual) {
-                    this.changeState('Shift', containerDiv);
-                } else if (name.includes('Space') && virtual) {
-                    textarea.value += ' ';
-                } else if (name.includes('Lang')) {
-                    while (containerDiv.children.length > 1) {
-                        containerDiv.removeChild(containerDiv.lastChild);
-                    }
-                    this.toggleLang(localStorage.getItem('lang'));
-                    containerDiv.appendChild(this.renderKeyboard(localStorage.getItem('lang')));
-                    this.addVirtualHandler(containerDiv);
-                } else if (name.includes('CapsLock')) {
-                    this.changeState('CapsLock', containerDiv);
-                } else if (String(name).includes('Control')) {
-                    this.keyModificator.ctrl = true;
-                } else if (String(name).includes('Alt')) {
-                    if (!virtual) {
-                        e.preventDefault();
-                    }
-                    this.keyModificator.alt = true;
+                    // else if (virtual) {
+                    //     console.log('Symbol Virtual');
+                    //     textarea.focus();
+                    //     textarea.selectionStart = this.textAreaCursor;
+
+                    //     textarea.value =
+                    //         textarea.value.slice(0, caret) +
+                    //         document.getElementById(name).children.item(0).innerHTML +
+                    //         textarea.value.slice(caret);
+                    // }
                 }
-                if (this.keyModificator.alt && this.keyModificator.ctrl) {
-                    this.toggleLang(localStorage.getItem('lang'));
-                    while (containerDiv.children.length > 1) {
-                        containerDiv.removeChild(containerDiv.lastChild);
-                    }
-                    containerDiv.appendChild(this.renderKeyboard(localStorage.getItem('lang')));
-                    this.addVirtualHandler(containerDiv);
-                }
-                const elem = document.getElementById(name);
-                if (
-                    (name.includes('Shift') && virtual && !this.keyModificator.virtualShift) ||
-                    (name.includes('CapsLock') && !this.keyModificator.capsLock)
-                ) {
-                    elem.classList.remove('btn-key_active');
-                } else {
-                    elem.classList.add('btn-key_active');
-                }
+                //  else if (virtual) {
+                //     console.log('Virtual');
+                //     textarea.focus();
+                //     caret = this.textAreaCursor;
+                //     if (name.includes('Shift')) {
+                //         this.changeState('Shift', containerDiv);
+                //     } else if (name.includes('Space')) {
+                //         textarea.value = `${textarea.value.slice(0, caret)} ${textarea.value.slice(caret)}`;
+                //     } else if (name.includes('Lang')) {
+                //         while (containerDiv.children.length > 1) {
+                //             containerDiv.removeChild(containerDiv.lastChild);
+                //         }
+                //         this.toggleLang(localStorage.getItem('lang'));
+                //         containerDiv.appendChild(this.renderKeyboard(localStorage.getItem('lang')));
+                //         this.addVirtualHandler(containerDiv);
+                //     } else if (String(name).includes('Enter')) {
+                //         textarea.value += '\n';
+                //     } else if (String(name).includes('Backspace')) {
+                //         if (String(textarea.value).length > 0) {
+                //             textarea.value = textarea.value.slice(0, caret - 1) + textarea.value.slice(caret);
+                //         }
+                //     } else if (String(name).includes('Delete')) {
+                //         if (String(textarea.value).length > 0) {
+                //             textarea.value = textarea.value.slice(0, caret) + textarea.value.slice(caret + 1);
+                //         }
+                //     }
+                // } else if (!virtual) {
+                //     console.log('!Virtual');
+                //     if (name.includes('Shift')) {
+                //         while (containerDiv.children.length > 1) {
+                //             containerDiv.removeChild(containerDiv.lastChild);
+                //         }
+                //         containerDiv.appendChild(this.renderKeyboard(localStorage.getItem('lang'), true));
+                //         this.addVirtualHandler(containerDiv);
+                //     } else if (e.altKey && e.shiftKey) {
+                //         while (containerDiv.children.length > 1) {
+                //             containerDiv.removeChild(containerDiv.lastChild);
+                //         }
+                //         this.toggleLang(localStorage.getItem('lang'));
+                //         containerDiv.appendChild(this.renderKeyboard(localStorage.getItem('lang')));
+                //         this.addVirtualHandler(containerDiv);
+                //     } else if (name.includes('CapsLock')) {
+                //         this.changeState('CapsLock', containerDiv);
+                //     } else if (String(name).includes('Control')) {
+                //         this.keyModificator.ctrl = true;
+                //     } else if (String(name).includes('Alt')) {
+                //         e.preventDefault();
+                //         this.keyModificator.alt = true;
+                //     }
+                // }
+                // const elem = document.getElementById(name);
+                // if (
+                //     (name.includes('Shift') && virtual && !this.keyModificator.virtualShift) ||
+                //     (name.includes('CapsLock') && !this.keyModificator.capsLock)
+                // ) {
+                //     elem.classList.remove('btn-key_active');
+                // } else {
+                //     elem.classList.add('btn-key_active');
+                // }
+                this.textAreaCursor = textarea.selectionStart;
+                console.log(this.textAreaCursor);
             }
         };
 

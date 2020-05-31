@@ -4,8 +4,11 @@ import Keyboard from './keyboard';
 const keyboard = new Keyboard();
 
 window.onload = () => {
-    if (localStorage.getItem('lang').length === 0) {
-        localStorage.setItem('lang', 'en');
+    let lang = 'en';
+    if (localStorage.getItem('lang') !== undefined && localStorage.getItem('lang') !== null) {
+        lang = localStorage.getItem('lang');
+    } else {
+        localStorage.setItem('lang', lang);
     }
 
     const { body } = document;
@@ -24,7 +27,7 @@ window.onload = () => {
 
     containerDiv.appendChild(textareaDiv);
 
-    containerDiv.appendChild(keyboard.renderKeyboard(localStorage.getItem('lang')));
+    containerDiv.appendChild(keyboard.renderKeyboard(lang));
 
     document.addEventListener('keydown', e => {
         keyboard.keyDownHandler(e, containerDiv);

@@ -37,6 +37,7 @@ body {
         padding: 30px;
         background-color: #363636;
         border-radius: 6px;
+        user-select: none;
 
         .row {
             display: flex;
