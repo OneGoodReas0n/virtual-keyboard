@@ -1,11 +1,11 @@
-# Canvas Task
+# Virtual Keyboard Task
 
-## To run this programm
+## To run this program
 
-- install npm
+-   install npm
 
-- run command 'npm run build'
+-   run command 'npm run build'
 
-- open index.html
+-   open index.html
 
-- to switch the language with real keyboard click _Alt_ + _Ctrl_
+-   for changing language from real keyboard click Shift + Alt at the same time
