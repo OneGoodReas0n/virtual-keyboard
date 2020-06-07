@@ -1,12 +1,9 @@
 class Keyboard {
     constructor() {
-        this.textAreaEnd = 0;
-        this.isFocused = false;
-
         this.keyModificator = {
             ctrl: false,
             alt: false,
-            virtualShift: false,
+            shift: false,
             capsLock: false,
         };
 
@@ -184,7 +181,7 @@ class Keyboard {
                             break;
                     }
                 } else if (keysArr[i] === 'Space') {
-                    specialKeyObjs.push({ key: keysArr[i].trim(), val: ' ', type: 'Special-big' });
+                    specialKeyObjs.push({ key: keysArr[i].trim(), val: ' ', type: 'Special-space' });
                 } else if (
                     keysArr[i].includes('Shift') ||
                     keysArr[i].includes('Alt') ||
@@ -199,8 +196,8 @@ class Keyboard {
                         : val.includes('Control')
                         ? 'Ctrl'
                         : 'Win';
-                    if (keysArr[i].includes('ShiftRight')) {
-                        specialKeyObjs.push({ key: keysArr[i].trim(), val, type: 'Special-letter-end' });
+                    if (keysArr[i].includes('Shift')) {
+                        specialKeyObjs.push({ key: keysArr[i].trim(), val, type: 'Special-letter-long' });
                     } else {
                         specialKeyObjs.push({ key: keysArr[i].trim(), val, type: 'Special' });
                     }
@@ -257,15 +254,15 @@ class Keyboard {
                     spanElem2.classList.add('symbol-upper');
 
                     switch (this.getTypeOfBtn(symbolObj, lang)) {
-                        case 'Special-letter-end':
+                        case 'Special-letter-long':
                             btnDiv.classList.add('btn-key-word-with-space');
-                            btnDiv.classList.add('btn-key-word-with-space_right-shift');
+                            btnDiv.classList.add('btn-key-word-long');
                             btnDiv.id = symbolObj.key;
                             spanElem1.innerHTML = symbolObj.val;
                             btnDiv.appendChild(spanElem1);
                             break;
-                        case 'Special-big':
-                            btnDiv.classList.add('btn-key-big');
+                        case 'Special-space':
+                            btnDiv.classList.add('btn-key-space');
                             btnDiv.id = symbolObj.key;
                             spanElem1.innerHTML = symbolObj.val;
                             btnDiv.appendChild(spanElem1);
@@ -313,7 +310,7 @@ class Keyboard {
         };
 
         this.addVirtualHandler = div => {
-            div.lastChild.childNodes.forEach(row => {
+            div.childNodes.forEach(row => {
                 row.childNodes.forEach(btn => {
                     btn.addEventListener('click', () => {
                         this.keyDownHandler(btn, div);
@@ -336,41 +333,77 @@ class Keyboard {
             );
         };
 
-        this.changeState = (str, containerDiv) => {
+        this.removeOldCreateNewKeyboard = command => {
+            const containerDiv = document.getElementById('wrapper');
+            containerDiv.removeChild(containerDiv.firstChild);
+            let newKeyboard;
+            if (command === 'Shift') {
+                newKeyboard = this.renderKeyboard(localStorage.getItem('lang'), true);
+            } else if (command === 'CapsLock') {
+                newKeyboard = this.renderKeyboard(localStorage.getItem('lang'), false, true);
+            } else {
+                newKeyboard = this.renderKeyboard(localStorage.getItem('lang'));
+            }
+            this.addVirtualHandler(newKeyboard);
+            containerDiv.appendChild(newKeyboard);
+        };
+
+        this.changeState = (str, virtual = false) => {
             if (str === 'Shift') {
-                if (this.keyModificator.virtualShift) {
-                    this.keyModificator.virtualShift = false;
-                    while (containerDiv.children.length > 1) {
-                        containerDiv.removeChild(containerDiv.lastChild);
+                if (virtual) {
+                    if (this.keyModificator.shift) {
+                        this.keyModificator.shift = false;
+                        this.removeOldCreateNewKeyboard();
+                    } else {
+                        this.keyModificator.shift = true;
+                        this.removeOldCreateNewKeyboard(str);
                     }
-                    containerDiv.appendChild(this.renderKeyboard(localStorage.getItem('lang')));
                 } else {
-                    this.keyModificator.virtualShift = true;
-                    while (containerDiv.children.length > 1) {
-                        containerDiv.removeChild(containerDiv.lastChild);
-                    }
-                    containerDiv.appendChild(this.renderKeyboard(localStorage.getItem('lang'), true));
+                    this.removeOldCreateNewKeyboard(str);
                 }
-                this.addVirtualHandler(containerDiv);
             } else if (str === 'CapsLock') {
-                if (this.keyModificator.capsLock) {
-                    this.keyModificator.capsLock = false;
-                    while (containerDiv.children.length > 1) {
-                        containerDiv.removeChild(containerDiv.lastChild);
+                if (virtual) {
+                    if (this.keyModificator.capsLock) {
+                        this.keyModificator.capsLock = false;
+                        this.removeOldCreateNewKeyboard();
+                    } else {
+                        this.keyModificator.capsLock = true;
+                        this.removeOldCreateNewKeyboard(str);
                     }
-                    containerDiv.appendChild(this.renderKeyboard(localStorage.getItem('lang')));
                 } else {
-                    this.keyModificator.capsLock = true;
-                    while (containerDiv.children.length > 1) {
-                        containerDiv.removeChild(containerDiv.lastChild);
-                    }
-                    containerDiv.appendChild(this.renderKeyboard(localStorage.getItem('lang'), false, true));
+                    this.removeOldCreateNewKeyboard(str);
                 }
-                this.addVirtualHandler(containerDiv);
+            } else if (str === 'Lang') {
+                this.toggleLang(localStorage.getItem('lang'));
+                this.removeOldCreateNewKeyboard();
+            } else {
+                this.removeOldCreateNewKeyboard();
             }
         };
 
-        this.keyUpHandler = (e, containerDiv) => {
+        this.createButton = name => {
+            const button = document.createElement('div');
+            button.classList.add('button');
+            const p = document.createElement('p');
+            p.innerHTML = name;
+            button.appendChild(p);
+            return button;
+        };
+
+        this.renderButtons = (virtual, button) => {
+            const popupDiv = document.getElementById('popup');
+            let btn = null;
+            popupDiv.innerHTML = '';
+            if (button === 'Space') {
+                btn = this.createButton(button);
+            } else {
+                const name = document.getElementById(button);
+                btn = this.createButton(name.children.item(0).innerText);
+            }
+            popupDiv.appendChild(btn);
+        };
+
+        this.keyUpHandler = e => {
             let virtual = true;
             let name = e.id;
 
@@ -378,14 +411,11 @@ class Keyboard {
                 name = e.code;
                 virtual = false;
             }
+
             if (this.checkIfKeyboardKey(name)) {
                 if (!virtual) {
                     if (name.includes('Shift')) {
-                        while (containerDiv.children.length > 1) {
-                            containerDiv.removeChild(containerDiv.lastChild);
-                        }
-                        containerDiv.appendChild(this.renderKeyboard(localStorage.getItem('lang'), false));
-                        this.addVirtualHandler(containerDiv);
+                        this.changeState('init');
                     } else if (String(name).includes('Control')) {
                         this.keyModificator.ctrl = false;
                     } else if (String(name).includes('Alt')) {
@@ -406,132 +436,52 @@ class Keyboard {
             }
         };
 
-        this.setSelectionRange = (input, selectionStart, selectionEnd) => {
-            if (input.setSelectionRange) {
-                input.focus();
-                input.setSelectionRange(selectionStart, selectionEnd);
-            } else if (input.createTextRange) {
-                const range = input.createTextRange();
-                range.collapse(true);
-                range.moveEnd('character', selectionEnd);
-                range.moveStart('character', selectionStart);
-                range.select();
-            }
-        };
-
-        this.setCaretToPos = (input, pos) => {
-            this.setSelectionRange(input, pos, pos);
-        };
-
-        this.keyDownHandler = (e, containerDiv) => {
-            const textarea = document.getElementById('textarea');
-            // textarea.addEventListener('onfocusout', area => {
-            //     this.textAreaCursor = area.selectionEnd;
-            // });
-            let name = e.code;
+        this.keyDownHandler = e => {
+            let name = e.id;
             let virtual = true;
-            if (!this.isFocused) {
-                console.log('Focus');
-                textarea.focus();
-                this.isFocused = true;
-            }
 
             if (e.code !== undefined) {
                 name = e.code;
                 virtual = false;
+                e.preventDefault();
             }
-            if (this.checkIfKeyboardKey(name)) {
-                if (
-                    String(name).includes('Digit') ||
-                    String(name).includes('Key') ||
-                    this.specialKeys.includes(name) ||
-                    String(name).includes('Tab')
-                ) {
-                    // if (name.includes('Tab')) {
-                    //     e.preventDefault();
-                    //     textarea.value = `${textarea.value.slice(0, this.textAreaCursor)}\t${textarea.value.slice(
-                    //         this.textAreaCursor
-                    //     )}`;
-                    // }
-                    if (!virtual) {
-                        e.preventDefault();
-                        console.log('Symbol ~!Virtual');
-                        this.setCaretToPos(textarea, textarea.selectionStart);
-                        textarea.append(document.getElementById(name).children.item(0).innerHTML);
-                    }
-                    // else if (virtual) {
-                    //     console.log('Symbol Virtual');
-                    //     textarea.focus();
-                    //     textarea.selectionStart = this.textAreaCursor;
 
-                    //     textarea.value =
-                    //         textarea.value.slice(0, caret) +
-                    //         document.getElementById(name).children.item(0).innerHTML +
-                    //         textarea.value.slice(caret);
-                    // }
+            this.renderButtons(virtual, name);
+
+            if (this.checkIfKeyboardKey(name)) {
+                if (virtual) {
+                    if (name.includes('Shift')) {
+                        this.changeState('Shift', true);
+                    } else if (name.includes('Lang')) {
+                        this.changeState('Lang', true);
+                    } else if (name.includes('CapsLock')) {
+                        this.changeState('CapsLock', true);
+                    }
+                } else if (!virtual) {
+                    if (name.includes('Shift')) {
+                        this.changeState('Shift');
+                    } else if (e.altKey && e.shiftKey) {
+                        this.changeState('Lang');
+                    } else if (name.includes('CapsLock')) {
+                        this.changeState('CapsLock');
+                    } else if (String(name).includes('Control')) {
+                        this.keyModificator.ctrl = true;
+                    } else if (String(name).includes('Alt')) {
+                        e.preventDefault();
+                        this.keyModificator.alt = true;
+                    }
                 }
-                //  else if (virtual) {
-                //     console.log('Virtual');
-                //     textarea.focus();
-                //     caret = this.textAreaCursor;
-                //     if (name.includes('Shift')) {
-                //         this.changeState('Shift', containerDiv);
-                //     } else if (name.includes('Space')) {
-                //         textarea.value = `${textarea.value.slice(0, caret)} ${textarea.value.slice(caret)}`;
-                //     } else if (name.includes('Lang')) {
-                //         while (containerDiv.children.length > 1) {
-                //             containerDiv.removeChild(containerDiv.lastChild);
-                //         }
-                //         this.toggleLang(localStorage.getItem('lang'));
-                //         containerDiv.appendChild(this.renderKeyboard(localStorage.getItem('lang')));
-                //         this.addVirtualHandler(containerDiv);
-                //     } else if (String(name).includes('Enter')) {
-                //         textarea.value += '\n';
-                //     } else if (String(name).includes('Backspace')) {
-                //         if (String(textarea.value).length > 0) {
-                //             textarea.value = textarea.value.slice(0, caret - 1) + textarea.value.slice(caret);
-                //         }
-                //     } else if (String(name).includes('Delete')) {
-                //         if (String(textarea.value).length > 0) {
-                //             textarea.value = textarea.value.slice(0, caret) + textarea.value.slice(caret + 1);
-                //         }
-                //     }
-                // } else if (!virtual) {
-                //     console.log('!Virtual');
-                //     if (name.includes('Shift')) {
-                //         while (containerDiv.children.length > 1) {
-                //             containerDiv.removeChild(containerDiv.lastChild);
-                //         }
-                //         containerDiv.appendChild(this.renderKeyboard(localStorage.getItem('lang'), true));
-                //         this.addVirtualHandler(containerDiv);
-                //     } else if (e.altKey && e.shiftKey) {
-                //         while (containerDiv.children.length > 1) {
-                //             containerDiv.removeChild(containerDiv.lastChild);
-                //         }
-                //         this.toggleLang(localStorage.getItem('lang'));
-                //         containerDiv.appendChild(this.renderKeyboard(localStorage.getItem('lang')));
-                //         this.addVirtualHandler(containerDiv);
-                //     } else if (name.includes('CapsLock')) {
-                //         this.changeState('CapsLock', containerDiv);
-                //     } else if (String(name).includes('Control')) {
-                //         this.keyModificator.ctrl = true;
-                //     } else if (String(name).includes('Alt')) {
-                //         e.preventDefault();
-                //         this.keyModificator.alt = true;
-                //     }
-                // }
-                // const elem = document.getElementById(name);
-                // if (
-                //     (name.includes('Shift') && virtual && !this.keyModificator.virtualShift) ||
-                //     (name.includes('CapsLock') && !this.keyModificator.capsLock)
-                // ) {
-                //     elem.classList.remove('btn-key_active');
-                // } else {
-                //     elem.classList.add('btn-key_active');
-                // }
-                this.textAreaCursor = textarea.selectionStart;
-                console.log(this.textAreaCursor);
+                const elem = document.getElementById(name);
+                if (
+                    (name.includes('Shift') && virtual && !this.keyModificator.shift) ||
+                    (name.includes('CapsLock') && !this.keyModificator.capsLock)
+                ) {
+                    elem.classList.remove('btn-key_active');
+                } else {
+                    elem.classList.add('btn-key_active');
+                }
             }
+            setTimeout(() => {}, 100);
         };
 
         this.toggleLang = lang => {

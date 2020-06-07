@@ -16,28 +16,30 @@ window.onload = () => {
     const containerDiv = document.createElement('div');
     containerDiv.classList.add('container');
 
-    const textareaDiv = document.createElement('div');
-    textareaDiv.classList.add('textarea-wrapper');
+    const deskDiv = document.createElement('div');
+    deskDiv.classList.add('popup');
+    deskDiv.id = 'popup';
 
-    const textareaElem = document.createElement('textarea');
-    textareaElem.id = 'textarea';
-    textareaElem.classList.add('textarea-wrapper__textarea');
+    const wrapperDiv = document.createElement('div');
+    wrapperDiv.classList.add('wrapper');
+    wrapperDiv.id = 'wrapper';
 
-    textareaDiv.appendChild(textareaElem);
+    const keyboardDiv = keyboard.renderKeyboard(lang);
 
-    containerDiv.appendChild(textareaDiv);
+    wrapperDiv.appendChild(keyboardDiv);
 
-    containerDiv.appendChild(keyboard.renderKeyboard(lang));
+    containerDiv.appendChild(deskDiv);
+    containerDiv.appendChild(wrapperDiv);
 
     document.addEventListener('keydown', e => {
-        keyboard.keyDownHandler(e, containerDiv);
+        keyboard.keyDownHandler(e);
     });
 
     document.addEventListener('keyup', e => {
-        keyboard.keyUpHandler(e, containerDiv);
+        keyboard.keyUpHandler(e);
     });
 
-    keyboard.addVirtualHandler(containerDiv);
+    keyboard.addVirtualHandler(keyboardDiv);
 
     body.appendChild(containerDiv);
 };
